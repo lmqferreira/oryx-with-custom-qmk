@@ -2,8 +2,6 @@
 #define PT_COMM KC_COMM
 #define PT_DOT KC_DOT
 #define PT_MINS KC_SLSH
-#define PT_LDAQ KC_EQL
-#define PT_RDAQ S(KC_EQL)
 #define PT_EXLM S(KC_1)
 #define PT_AT ALGR(KC_2)
 #define PT_EURO ALGR(KC_E)
@@ -18,7 +16,7 @@
 #define PT_RABK S(KC_NUBS)
 #define PT_HASH S(KC_3)
 #define PT_ASTR S(KC_LBRC)
-#define PT_FORD S(KC_QUOT)
+#define PT_LDAQ KC_EQL
 #define PT_AMPR S(KC_6)
 #define PT_SLSH S(KC_7)
 #define PT_LPRN S(KC_8)
