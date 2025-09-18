@@ -12,9 +12,12 @@ enum custom_keycodes {
 
 
 
-#define DUAL_FUNC_0 LT(9, KC_C)
-#define DUAL_FUNC_1 LT(4, KC_F1)
-#define DUAL_FUNC_2 LT(2, KC_B)
+#define DUAL_FUNC_0 LT(4, KC_R)
+#define DUAL_FUNC_1 LT(13, KC_F21)
+#define DUAL_FUNC_2 LT(7, KC_F15)
+#define DUAL_FUNC_3 LT(13, KC_D)
+#define DUAL_FUNC_4 LT(10, KC_P)
+#define DUAL_FUNC_5 LT(13, KC_0)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -26,21 +29,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   [1] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_DELETE,      
-    KC_TRANSPARENT, PT_EXLM,        PT_AT,          PT_EURO,        PT_BSLS,        PT_PERC,                                        PT_AMPR,        PT_SLSH,        PT_LPRN,        PT_RPRN,        PT_ACUT,        KC_BSPC,        
-    KC_TRANSPARENT, PT_CIRC,        DUAL_FUNC_0,    DUAL_FUNC_1,    DUAL_FUNC_2,    PT_PIPE,                                        PT_QUOT,        PT_EQL,         PT_LCBR,        PT_RCBR,        PT_TILD,        KC_ENTER,       
+    KC_TAB,         PT_EXLM,        PT_AT,          PT_EURO,        PT_BSLS,        PT_PERC,                                        PT_AMPR,        PT_SLSH,        PT_LPRN,        PT_RPRN,        PT_ACUT,        KC_BSPC,        
+    KC_TRANSPARENT, PT_CIRC,        DUAL_FUNC_0,    DUAL_FUNC_1,    DUAL_FUNC_2,    PT_PIPE,                                        PT_QUOT,        DUAL_FUNC_3,    DUAL_FUNC_4,    DUAL_FUNC_5,    PT_TILD,        KC_ENTER,       
     KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        PT_ASTR,        PT_LDAQ,                                        PT_MORD,        PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_QUES,        LALT(KC_PSCR),  
                                                     MO(2),          KC_LEFT_GUI,                                    KC_TRANSPARENT, MO(3)
   ),
   [2] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_SCRL,        KC_PAUSE,       KC_HOME,        KC_END,         KC_INSERT,      KC_DELETE,      
-    KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_NO,          KC_PAGE_UP,     KC_UP,          KC_PAGE_UP,     KC_PAUSE,       KC_BSPC,        
-    KC_TRANSPARENT, KC_LEFT_GUI,    KC_LEFT_ALT,    KC_LEFT_CTRL,   KC_LEFT_SHIFT,  KC_NO,                                          KC_NO,          KC_LEFT,        KC_DOWN,        KC_RIGHT,       KC_NO,          KC_ENTER,       
-    KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          LALT(KC_PSCR),  
-                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+    KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_PAGE_UP,     KC_PGDN,        KC_HOME,        KC_END,         KC_INSERT,      KC_DELETE,      
+    KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_NO,          KC_PAGE_UP,     KC_UP,          KC_PGDN,        KC_PAUSE,       KC_BSPC,        
+    KC_TRANSPARENT, KC_LEFT_GUI,    KC_LEFT_ALT,    KC_LEFT_CTRL,   KC_LEFT_SHIFT,  KC_NO,                                          KC_NO,          KC_LEFT,        KC_DOWN,        KC_RIGHT,       KC_SCRL,        KC_ENTER,       
+    KC_LEFT_CTRL,   KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,          LALT(KC_PSCR),  
+                                                    KC_TRANSPARENT, KC_SPACE,                                       KC_TRANSPARENT, KC_TRANSPARENT
   ),
   [3] = LAYOUT_voyager(
-    KC_TRANSPARENT, KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,                                          RGB_VAD,        RGB_VAI,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
-    KC_TRANSPARENT, KC_F5,          KC_F6,          KC_F7,          KC_F8,          KC_NO,                                          KC_BRIGHTNESS_DOWN,KC_BRIGHTNESS_UP,KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,                                          KC_BRIGHTNESS_DOWN,KC_BRIGHTNESS_UP,KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_F5,          KC_F6,          KC_F7,          KC_F8,          KC_NO,                                          RGB_VAD,        RGB_VAI,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_F9,          KC_F10,         KC_F11,         KC_F12,         KC_NO,                                          KC_TRANSPARENT, KC_RIGHT_SHIFT, KC_RIGHT_CTRL,  KC_LEFT_ALT,    KC_RIGHT_GUI,   KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
@@ -77,6 +80,10 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
             return TAPPING_TERM + 75;
         case MT(MOD_LALT, KC_L):
             return TAPPING_TERM + 150;
+        case DUAL_FUNC_0:
+            return TAPPING_TERM + 200;
+        case DUAL_FUNC_5:
+            return TAPPING_TERM + 200;
         default:
             return TAPPING_TERM;
     }
@@ -96,13 +103,13 @@ void keyboard_post_init_user(void) {
 }
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [0] = { {0,0,255}, {230,60,255}, {230,60,255}, {230,60,255}, {230,60,255}, {230,60,255}, {83,255,139}, {0,0,0}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,255}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,255}, {144,255,196}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {0,0,255}, {144,255,196}, {83,255,139}, {185,174,255}, {185,174,255}, {185,174,255}, {185,174,255}, {185,174,255}, {185,174,255}, {0,0,255}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,255}, {0,255,239}, {0,0,255}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {83,255,139}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {43,255,234}, {0,255,239}, {83,255,139} },
+    [0] = { {0,0,255}, {32,255,235}, {32,255,235}, {32,255,235}, {32,255,235}, {32,255,235}, {83,255,139}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {144,255,196}, {0,0,221}, {0,0,221}, {0,0,221}, {144,255,196}, {0,0,221}, {144,255,196}, {83,255,139}, {185,174,255}, {185,174,255}, {129,255,255}, {129,255,255}, {0,255,238}, {0,255,255}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {0,255,239}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {83,255,139}, {0,0,221}, {0,0,221}, {0,0,221}, {0,0,221}, {0,0,221}, {43,255,234}, {0,255,239}, {83,255,139} },
 
-    [1] = { {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {83,255,139}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {144,255,196}, {43,255,234}, {83,255,139}, {0,0,255}, {43,255,234}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {144,255,196}, {0,0,255}, {144,255,196}, {24,255,253}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {185,174,255}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {0,255,239}, {83,255,139}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {83,255,139}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {83,255,139}, {24,255,253}, {0,255,239}, {168,168,255} },
+    [1] = { {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {83,255,139}, {215,255,255}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {144,255,196}, {43,255,234}, {83,255,139}, {0,0,255}, {43,255,234}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {144,255,196}, {83,255,139}, {144,255,196}, {24,255,253}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,255,255}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {0,255,239}, {83,255,139}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {83,255,139}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {215,255,255}, {24,255,253}, {0,255,239}, {168,168,255} },
 
-    [2] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {24,255,253}, {24,255,253}, {185,174,255}, {185,174,255}, {185,174,255}, {185,174,255}, {0,0,0}, {185,174,255}, {129,255,255}, {185,174,255}, {24,255,253}, {0,255,239}, {0,0,0}, {129,255,255}, {129,255,255}, {129,255,255}, {0,0,0}, {83,255,139}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {24,255,253}, {0,255,239}, {0,0,0} },
+    [2] = { {0,0,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {83,255,139}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,0,0}, {0,255,239}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {83,255,139}, {185,174,255}, {185,174,255}, {129,255,255}, {129,255,255}, {0,255,238}, {0,255,255}, {0,0,0}, {185,174,255}, {129,255,255}, {185,174,255}, {24,255,253}, {0,255,239}, {0,0,0}, {129,255,255}, {129,255,255}, {129,255,255}, {24,255,253}, {83,255,139}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {24,255,253}, {0,255,239}, {0,0,0} },
 
-    [3] = { {0,0,0}, {230,60,255}, {230,60,255}, {230,60,255}, {230,60,255}, {230,60,255}, {0,0,0}, {230,60,255}, {230,60,255}, {230,60,255}, {230,60,255}, {0,0,0}, {0,0,0}, {230,60,255}, {230,60,255}, {230,60,255}, {230,60,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {32,255,235}, {32,255,235}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {32,255,235}, {32,255,235}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
+    [3] = { {0,0,0}, {32,255,235}, {32,255,235}, {32,255,235}, {32,255,235}, {32,255,235}, {0,0,0}, {32,255,235}, {32,255,235}, {32,255,235}, {32,255,235}, {0,0,0}, {0,0,0}, {32,255,235}, {32,255,235}, {32,255,235}, {32,255,235}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {32,255,235}, {32,255,235}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {32,255,235}, {32,255,235}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
 
 };
 
@@ -203,6 +210,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           register_code16(KC_LEFT_SHIFT);
         } else {
           unregister_code16(KC_LEFT_SHIFT);
+        }  
+      }  
+      return false;
+    case DUAL_FUNC_3:
+      if (record->tap.count > 0) {
+        if (record->event.pressed) {
+          register_code16(PT_EQL);
+        } else {
+          unregister_code16(PT_EQL);
+        }
+      } else {
+        if (record->event.pressed) {
+          register_code16(KC_RIGHT_SHIFT);
+        } else {
+          unregister_code16(KC_RIGHT_SHIFT);
+        }  
+      }  
+      return false;
+    case DUAL_FUNC_4:
+      if (record->tap.count > 0) {
+        if (record->event.pressed) {
+          register_code16(PT_LCBR);
+        } else {
+          unregister_code16(PT_LCBR);
+        }
+      } else {
+        if (record->event.pressed) {
+          register_code16(KC_RIGHT_CTRL);
+        } else {
+          unregister_code16(KC_RIGHT_CTRL);
+        }  
+      }  
+      return false;
+    case DUAL_FUNC_5:
+      if (record->tap.count > 0) {
+        if (record->event.pressed) {
+          register_code16(PT_RCBR);
+        } else {
+          unregister_code16(PT_RCBR);
+        }
+      } else {
+        if (record->event.pressed) {
+          register_code16(KC_LEFT_ALT);
+        } else {
+          unregister_code16(KC_LEFT_ALT);
         }  
       }  
       return false;
