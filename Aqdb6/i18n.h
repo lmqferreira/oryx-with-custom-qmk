@@ -22,8 +22,8 @@
 #define PT_LPRN S(KC_8)
 #define PT_RPRN S(KC_9)
 #define PT_ACUT KC_RBRC
-#define PT_QUOT KC_MINS
 #define PT_EQL S(KC_0)
+#define PT_QUOT KC_MINS
 #define PT_LCBR ALGR(KC_7)
 #define PT_RCBR ALGR(KC_0)
 #define PT_TILD KC_NUHS
