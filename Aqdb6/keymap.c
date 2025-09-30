@@ -166,10 +166,40 @@ bool rgb_matrix_indicators_user(void) {
 }
 
 
+// --- Alt+Tab latch while MO(2) is held ---
+static bool mo2_held = false;
+static bool mo2_alt_latched = false;
 
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+// --- Begin MO(2) → LM(2, LALT) latch logic ---
+  if (keycode == MO(2)) {
+      if (record->event.pressed) {
+          mo2_held = true;
+      } else {
+          mo2_held = false;
+          if (mo2_alt_latched) {
+              mo2_alt_latched = false;
+              unregister_mods(MOD_BIT(KC_LALT)); // drop the latched Alt when leaving the layer
+          }
+      }
+      // Let MO(2) do its normal momentary-layer behavior
+      return true;
+  }
+
+  // If MO(2) is currently held and Tab is pressed, latch Left Alt until MO(2) is released
+  if (mo2_held && keycode == KC_TAB && record->event.pressed) {
+      if (!mo2_alt_latched) {
+          mo2_alt_latched = true;
+          register_mods(MOD_BIT(KC_LALT));       // behave like LM(2, LALT) from now on
+      }
+      // Return true so KC_TAB still sends normally
+      return true;
+  }
+  // --- End MO(2) → LM(2, LALT) latch logic ---
+  
   switch (keycode) {
 
     case DUAL_FUNC_0:
