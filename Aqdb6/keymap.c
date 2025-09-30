@@ -169,10 +169,12 @@ bool rgb_matrix_indicators_user(void) {
 static bool layer1_alt_latched = false;
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // If layer 1 is no longer active, drop the latched Alt
-    if (!layer_state_is(1) && layer1_alt_latched) {
+    // Use the incoming 'state' to see whether layer 1 will be active
+    if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
         layer1_alt_latched = false;
         unregister_mods(MOD_BIT(KC_LALT));
+        // (optional, but helps in some setups)
+        send_keyboard_report();
     }
     return state;
 }
@@ -180,15 +182,14 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-// --- Begin: Alt latch on first TAB while on layer 1 ---
-  if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
-      if (!layer1_alt_latched) {
-          layer1_alt_latched = true;
-          register_mods(MOD_BIT(KC_LALT));  // behave like LM(1, LALT) from now on
-      }
-      // let KC_TAB pass through
-      return true;
-  }
+// Alt latch on first TAB while on layer 1
+    if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
+        if (!layer1_alt_latched) {
+            layer1_alt_latched = true;
+            register_mods(MOD_BIT(KC_LALT));
+        }
+        return true; // let TAB through
+    }
   // --- End: Alt latch on first TAB while on layer 1 ---
   
   switch (keycode) {
