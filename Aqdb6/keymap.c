@@ -12,12 +12,12 @@ enum custom_keycodes {
 
 
 
-#define DUAL_FUNC_0 LT(15, KC_W)
-#define DUAL_FUNC_1 LT(1, KC_I)
-#define DUAL_FUNC_2 LT(15, KC_4)
-#define DUAL_FUNC_3 LT(11, KC_A)
-#define DUAL_FUNC_4 LT(4, KC_F11)
-#define DUAL_FUNC_5 LT(5, KC_H)
+#define DUAL_FUNC_0 LT(5, KC_F12)
+#define DUAL_FUNC_1 LT(5, KC_Z)
+#define DUAL_FUNC_2 LT(4, KC_F15)
+#define DUAL_FUNC_3 LT(1, KC_0)
+#define DUAL_FUNC_4 LT(12, KC_X)
+#define DUAL_FUNC_5 LT(10, KC_F14)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -25,7 +25,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,         KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_DELETE,      
     OSM(MOD_LSFT),  KC_A,           MT(MOD_LALT, KC_S),MT(MOD_LCTL, KC_D),MT(MOD_LSFT, KC_F),KC_G,                                           KC_H,           MT(MOD_RSFT, KC_J),MT(MOD_RCTL, KC_K),MT(MOD_LALT, KC_L),PT_CCED,        KC_ENTER,       
     KC_LEFT_CTRL,   KC_Z,           KC_X,           MT(MOD_LGUI, KC_C),MT(MOD_LALT, KC_V),KC_B,                                           KC_N,           KC_M,           PT_COMM,        PT_DOT,         PT_MINS,        KC_PSCR,        
-                                                    LT(1, KC_SPACE),MO(2),                                          MO(3),          LT(1, KC_SPACE)
+                                                    LT(1, KC_ESCAPE),MO(2),                                          MO(3),          LT(1, KC_SPACE)
   ),
   [1] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_BSPC,        
@@ -62,12 +62,14 @@ const uint16_t PROGMEM combo0[] = { KC_W, KC_E, KC_R, COMBO_END};
 const uint16_t PROGMEM combo1[] = { KC_U, KC_I, KC_O, COMBO_END};
 const uint16_t PROGMEM combo2[] = { MT(MOD_LALT, KC_S), MT(MOD_LCTL, KC_D), MT(MOD_LSFT, KC_F), COMBO_END};
 const uint16_t PROGMEM combo3[] = { KC_Z, KC_X, COMBO_END};
+const uint16_t PROGMEM combo4[] = { PT_AT, PT_EURO, PT_BSLS, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo0, KC_SPACE),
     COMBO(combo1, KC_ENTER),
     COMBO(combo2, KC_CAPS),
     COMBO(combo3, KC_LEFT_GUI),
+    COMBO(combo4, KC_TAB),
 };
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
