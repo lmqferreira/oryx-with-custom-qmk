@@ -12,21 +12,20 @@ enum custom_keycodes {
 
 
 
-#define DUAL_FUNC_0 LT(11, KC_F8)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
     KC_ESCAPE,      KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_BSPC,        
     KC_TAB,         KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_DELETE,      
     OSM(MOD_LSFT),  KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                           KC_H,           KC_J,           KC_K,           KC_L,           PT_CCED,        KC_ENTER,       
-    OSM(MOD_LCTL),  KC_Z,           KC_X,           MT(MOD_LGUI, KC_C),MT(MOD_LALT, KC_V),KC_B,                                           KC_N,           KC_M,           PT_COMM,        PT_DOT,         PT_MINS,        KC_PSCR,        
+    OSM(MOD_LCTL),  KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           PT_COMM,        PT_DOT,         PT_MINS,        KC_PSCR,        
                                                     LT(1, KC_SPACE),MO(2),                                          MO(3),          LT(1, KC_SPACE)
   ),
   [1] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_PAGE_UP,     KC_PGDN,        KC_HOME,        KC_END,         KC_INSERT,      KC_BSPC,        
     KC_TAB,         PT_EXLM,        PT_AT,          PT_EURO,        PT_BSLS,        PT_PERC,                                        PT_AMPR,        PT_SLSH,        PT_LPRN,        PT_RPRN,        PT_ACUT,        KC_DELETE,      
     KC_CAPS,        PT_CIRC,        PT_DQUO,        PT_DLR,         PT_GRV,         PT_PIPE,                                        PT_QUES,        PT_QUOT,        PT_LCBR,        PT_RCBR,        PT_TILD,        KC_ENTER,       
-    KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        DUAL_FUNC_0,    PT_LDAQ,                                        PT_EQL,         PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_MORD,        KC_PSCR,        
+    KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        PT_ASTR,        PT_LDAQ,                                        PT_EQL,         PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_MORD,        KC_PSCR,        
                                                     KC_LEFT_SHIFT,  KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_LEFT_SHIFT
   ),
   [2] = LAYOUT_voyager(
@@ -55,37 +54,37 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM = LAYOUT(
 
 const uint16_t PROGMEM combo0[] = { KC_W, KC_E, KC_R, COMBO_END};
 const uint16_t PROGMEM combo1[] = { KC_U, KC_I, KC_O, COMBO_END};
-const uint16_t PROGMEM combo2[] = { KC_Z, KC_X, COMBO_END};
-const uint16_t PROGMEM combo3[] = { PT_AT, PT_EURO, PT_BSLS, COMBO_END};
-const uint16_t PROGMEM combo4[] = { KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM combo5[] = { KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM combo6[] = { KC_A, KC_S, COMBO_END};
-const uint16_t PROGMEM combo7[] = { KC_L, PT_CCED, COMBO_END};
+const uint16_t PROGMEM combo2[] = { PT_AT, PT_EURO, PT_BSLS, COMBO_END};
+const uint16_t PROGMEM combo3[] = { KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM combo4[] = { KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM combo5[] = { KC_A, KC_S, COMBO_END};
+const uint16_t PROGMEM combo6[] = { KC_L, PT_CCED, COMBO_END};
+const uint16_t PROGMEM combo7[] = { KC_C, KC_V, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo0, KC_SPACE),
     COMBO(combo1, KC_ENTER),
-    COMBO(combo2, KC_LEFT_GUI),
-    COMBO(combo3, KC_TAB),
-    COMBO(combo4, KC_LEFT_SHIFT),
-    COMBO(combo5, KC_RIGHT_SHIFT),
+    COMBO(combo2, KC_TAB),
+    COMBO(combo3, KC_LEFT_SHIFT),
+    COMBO(combo4, KC_RIGHT_SHIFT),
+    COMBO(combo5, KC_LEFT_ALT),
     COMBO(combo6, KC_LEFT_ALT),
-    COMBO(combo7, KC_LEFT_ALT),
+    COMBO(combo7, KC_LEFT_GUI),
 };
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_D:
             return TAPPING_TERM + 100;
-        case MT(MOD_LGUI, KC_C):
+        case KC_C:
             return TAPPING_TERM + 100;
-        case MT(MOD_LALT, KC_V):
+        case KC_V:
             return TAPPING_TERM + 75;
         case KC_L:
             return TAPPING_TERM + 150;
         case PT_DQUO:
             return TAPPING_TERM + 200;
-        case DUAL_FUNC_0:
+        case PT_ASTR:
             return TAPPING_TERM + 75;
         case PT_RCBR:
             return TAPPING_TERM + 200;
@@ -108,7 +107,7 @@ void keyboard_post_init_user(void) {
 }
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [0] = { {0,0,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {83,255,139}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {144,255,196}, {24,255,253}, {24,255,253}, {144,255,196}, {144,255,196}, {0,0,221}, {83,255,139}, {144,255,196}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {0,255,239}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {0,255,255}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {83,255,139}, {0,0,221}, {0,0,221}, {0,0,221}, {0,0,221}, {0,0,221}, {24,255,253}, {144,255,196}, {83,255,139} },
+    [0] = { {0,0,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {83,255,139}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {144,255,196}, {0,0,221}, {0,0,221}, {24,255,253}, {24,255,253}, {0,0,221}, {83,255,139}, {144,255,196}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {0,255,239}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {0,255,255}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {83,255,139}, {0,0,221}, {24,255,253}, {24,255,253}, {0,0,221}, {0,0,221}, {24,255,253}, {144,255,196}, {83,255,139} },
 
     [1] = { {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {83,255,139}, {215,255,255}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {144,255,196}, {43,255,234}, {83,255,139}, {0,0,255}, {43,255,234}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {144,255,196}, {83,255,139}, {0,0,255}, {144,255,196}, {185,174,255}, {185,174,255}, {215,255,255}, {215,255,255}, {0,255,238}, {0,255,239}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {0,255,255}, {215,255,255}, {43,255,234}, {0,255,239}, {0,255,239}, {43,255,234}, {83,255,139}, {144,255,196}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {24,255,253}, {144,255,196}, {83,255,139} },
 
@@ -173,21 +172,6 @@ bool rgb_matrix_indicators_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
 
-    case DUAL_FUNC_0:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(PT_ASTR);
-        } else {
-          unregister_code16(PT_ASTR);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_ALT);
-        } else {
-          unregister_code16(KC_LEFT_ALT);
-        }  
-      }  
-      return false;
     case RGB_SLD:
       if (record->event.pressed) {
         rgblight_mode(1);
