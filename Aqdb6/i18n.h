@@ -27,8 +27,8 @@
 #define PT_LCBR ALGR(KC_7)
 #define PT_RCBR ALGR(KC_0)
 #define PT_TILD KC_NUHS
-#define PT_MORD KC_QUOT
+#define PT_QUES S(KC_MINS)
 #define PT_PLUS KC_LBRC
 #define PT_LBRC ALGR(KC_8)
 #define PT_RBRC ALGR(KC_9)
-#define PT_QUES S(KC_MINS)
+#define PT_MORD KC_QUOT

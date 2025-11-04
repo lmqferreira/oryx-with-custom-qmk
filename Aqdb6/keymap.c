@@ -12,12 +12,7 @@ enum custom_keycodes {
 
 
 
-#define DUAL_FUNC_0 LT(10, KC_3)
-#define DUAL_FUNC_1 LT(2, KC_A)
-#define DUAL_FUNC_2 LT(11, KC_E)
-#define DUAL_FUNC_3 LT(9, KC_F23)
-#define DUAL_FUNC_4 LT(13, KC_F24)
-#define DUAL_FUNC_5 LT(2, KC_8)
+#define DUAL_FUNC_0 LT(2, KC_9)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -30,8 +25,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [1] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_PAGE_UP,     KC_PGDN,        KC_HOME,        KC_END,         KC_INSERT,      KC_BSPC,        
     KC_TAB,         PT_EXLM,        PT_AT,          PT_EURO,        PT_BSLS,        PT_PERC,                                        PT_AMPR,        PT_SLSH,        PT_LPRN,        PT_RPRN,        PT_ACUT,        KC_DELETE,      
-    KC_CAPS,        PT_CIRC,        DUAL_FUNC_0,    DUAL_FUNC_1,    DUAL_FUNC_2,    PT_PIPE,                                        PT_EQL,         MT(MOD_RSFT, PT_QUOT),DUAL_FUNC_4,    DUAL_FUNC_5,    PT_TILD,        KC_ENTER,       
-    KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        DUAL_FUNC_3,    PT_LDAQ,                                        PT_MORD,        PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_QUES,        KC_PSCR,        
+    KC_CAPS,        PT_CIRC,        PT_DQUO,        PT_DLR,         PT_GRV,         PT_PIPE,                                        PT_EQL,         PT_QUOT,        PT_LCBR,        PT_RCBR,        PT_TILD,        KC_ENTER,       
+    KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        DUAL_FUNC_0,    PT_LDAQ,                                        PT_QUES,        PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_MORD,        KC_PSCR,        
                                                     KC_LEFT_SHIFT,  KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_LEFT_SHIFT
   ),
   [2] = LAYOUT_voyager(
@@ -88,11 +83,11 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
             return TAPPING_TERM + 75;
         case KC_L:
             return TAPPING_TERM + 150;
-        case DUAL_FUNC_0:
+        case PT_DQUO:
             return TAPPING_TERM + 200;
-        case DUAL_FUNC_3:
+        case DUAL_FUNC_0:
             return TAPPING_TERM + 75;
-        case DUAL_FUNC_5:
+        case PT_RCBR:
             return TAPPING_TERM + 200;
         default:
             return TAPPING_TERM;
@@ -115,7 +110,7 @@ void keyboard_post_init_user(void) {
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
     [0] = { {0,0,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {83,255,139}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {144,255,196}, {24,255,253}, {24,255,253}, {144,255,196}, {144,255,196}, {0,0,221}, {83,255,139}, {144,255,196}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {0,255,239}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {0,255,255}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {83,255,139}, {0,0,221}, {0,0,221}, {0,0,221}, {0,0,221}, {0,0,221}, {24,255,253}, {144,255,196}, {83,255,139} },
 
-    [1] = { {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {83,255,139}, {215,255,255}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {144,255,196}, {43,255,234}, {83,255,139}, {0,0,255}, {43,255,234}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {144,255,196}, {83,255,139}, {0,0,255}, {144,255,196}, {185,174,255}, {185,174,255}, {215,255,255}, {215,255,255}, {0,255,238}, {0,255,239}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {0,255,255}, {144,255,196}, {43,255,234}, {0,255,239}, {0,255,239}, {43,255,234}, {83,255,139}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {215,255,255}, {24,255,253}, {144,255,196}, {83,255,139} },
+    [1] = { {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {83,255,139}, {215,255,255}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {144,255,196}, {43,255,234}, {83,255,139}, {0,0,255}, {43,255,234}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {144,255,196}, {83,255,139}, {0,0,255}, {144,255,196}, {185,174,255}, {185,174,255}, {215,255,255}, {215,255,255}, {0,255,238}, {0,255,239}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {0,255,255}, {144,255,196}, {43,255,234}, {0,255,239}, {0,255,239}, {43,255,234}, {83,255,139}, {215,255,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {24,255,253}, {144,255,196}, {83,255,139} },
 
     [2] = { {0,0,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {83,255,139}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,255,239}, {0,0,0}, {0,255,239}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {144,255,196}, {185,174,255}, {185,174,255}, {215,255,255}, {215,255,255}, {0,255,238}, {0,255,239}, {0,0,0}, {185,174,255}, {129,255,255}, {185,174,255}, {24,255,253}, {0,255,255}, {0,0,0}, {129,255,255}, {129,255,255}, {129,255,255}, {24,255,253}, {83,255,139}, {0,0,0}, {43,255,234}, {43,255,234}, {43,255,234}, {43,255,234}, {24,255,253}, {144,255,196}, {83,255,139} },
 
@@ -203,84 +198,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case DUAL_FUNC_0:
       if (record->tap.count > 0) {
         if (record->event.pressed) {
-          register_code16(PT_DQUO);
-        } else {
-          unregister_code16(PT_DQUO);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_ALT);
-        } else {
-          unregister_code16(KC_LEFT_ALT);
-        }  
-      }  
-      return false;
-    case DUAL_FUNC_1:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(PT_DLR);
-        } else {
-          unregister_code16(PT_DLR);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_CTRL);
-        } else {
-          unregister_code16(KC_LEFT_CTRL);
-        }  
-      }  
-      return false;
-    case DUAL_FUNC_2:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(PT_GRV);
-        } else {
-          unregister_code16(PT_GRV);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_SHIFT);
-        } else {
-          unregister_code16(KC_LEFT_SHIFT);
-        }  
-      }  
-      return false;
-    case DUAL_FUNC_3:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
           register_code16(PT_ASTR);
         } else {
           unregister_code16(PT_ASTR);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_ALT);
-        } else {
-          unregister_code16(KC_LEFT_ALT);
-        }  
-      }  
-      return false;
-    case DUAL_FUNC_4:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(PT_LCBR);
-        } else {
-          unregister_code16(PT_LCBR);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RIGHT_CTRL);
-        } else {
-          unregister_code16(KC_RIGHT_CTRL);
-        }  
-      }  
-      return false;
-    case DUAL_FUNC_5:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(PT_RCBR);
-        } else {
-          unregister_code16(PT_RCBR);
         }
       } else {
         if (record->event.pressed) {
