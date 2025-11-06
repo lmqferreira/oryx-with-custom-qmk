@@ -52,28 +52,24 @@ const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM = LAYOUT(
   '*', '*', '*', '*'
 );
 
-const uint16_t PROGMEM combo0[] = { KC_W, KC_E, KC_R, COMBO_END};
-const uint16_t PROGMEM combo1[] = { KC_U, KC_I, KC_O, COMBO_END};
-const uint16_t PROGMEM combo2[] = { PT_AT, PT_EURO, PT_BSLS, COMBO_END};
-const uint16_t PROGMEM combo3[] = { KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM combo4[] = { KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM combo5[] = { KC_A, KC_S, COMBO_END};
-const uint16_t PROGMEM combo6[] = { KC_L, PT_CCED, COMBO_END};
-const uint16_t PROGMEM combo7[] = { KC_C, KC_V, COMBO_END};
-const uint16_t PROGMEM combo8[] = { KC_M, PT_COMM, COMBO_END};
-const uint16_t PROGMEM combo9[] = { KC_S, KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM combo0[] = { PT_AT, PT_EURO, PT_BSLS, COMBO_END};
+const uint16_t PROGMEM combo1[] = { KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM combo2[] = { KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM combo3[] = { KC_E, KC_R, COMBO_END};
+const uint16_t PROGMEM combo4[] = { KC_U, KC_I, COMBO_END};
+const uint16_t PROGMEM combo5[] = { KC_C, KC_V, COMBO_END};
+const uint16_t PROGMEM combo6[] = { KC_M, PT_COMM, COMBO_END};
+const uint16_t PROGMEM combo7[] = { KC_S, KC_D, KC_F, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-    COMBO(combo0, KC_SPACE),
-    COMBO(combo1, KC_ENTER),
-    COMBO(combo2, KC_TAB),
-    COMBO(combo3, KC_LEFT_SHIFT),
-    COMBO(combo4, KC_RIGHT_SHIFT),
-    COMBO(combo5, KC_LEFT_ALT),
-    COMBO(combo6, KC_LEFT_ALT),
-    COMBO(combo7, KC_LEFT_GUI),
-    COMBO(combo8, KC_RIGHT_GUI),
-    COMBO(combo9, CW_TOGG),
+    COMBO(combo0, KC_TAB),
+    COMBO(combo1, KC_LEFT_SHIFT),
+    COMBO(combo2, KC_RIGHT_SHIFT),
+    COMBO(combo3, KC_LEFT_ALT),
+    COMBO(combo4, KC_LEFT_ALT),
+    COMBO(combo5, KC_LEFT_GUI),
+    COMBO(combo6, KC_RIGHT_GUI),
+    COMBO(combo7, CW_TOGG),
 };
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
@@ -111,7 +107,7 @@ void keyboard_post_init_user(void) {
 }
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [0] = { {0,0,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {83,255,139}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {144,255,196}, {0,0,221}, {0,0,221}, {24,255,253}, {24,255,253}, {0,0,221}, {83,255,139}, {144,255,196}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {0,255,239}, {0,0,221}, {83,255,139}, {83,255,139}, {83,255,139}, {0,0,221}, {0,255,255}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {144,255,196}, {83,255,139}, {0,0,221}, {24,255,253}, {24,255,253}, {0,0,221}, {0,0,221}, {24,255,253}, {144,255,196}, {83,255,139} },
+    [0] = { {0,0,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {83,255,139}, {144,255,196}, {0,0,221}, {83,255,139}, {83,255,139}, {0,0,221}, {144,255,196}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {144,255,196}, {0,0,221}, {0,0,221}, {24,255,253}, {24,255,253}, {0,0,221}, {83,255,139}, {144,255,196}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {129,255,255}, {0,255,239}, {0,0,221}, {83,255,139}, {83,255,139}, {0,0,221}, {0,0,221}, {0,255,255}, {0,0,221}, {144,255,196}, {144,255,196}, {144,255,196}, {0,0,221}, {83,255,139}, {0,0,221}, {24,255,253}, {24,255,253}, {0,0,221}, {0,0,221}, {24,255,253}, {144,255,196}, {83,255,139} },
 
     [1] = { {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {0,0,255}, {83,255,139}, {215,255,255}, {0,0,255}, {0,0,255}, {0,0,255}, {144,255,196}, {144,255,196}, {43,255,234}, {83,255,139}, {0,0,255}, {43,255,234}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {144,255,196}, {83,255,139}, {0,0,255}, {144,255,196}, {185,174,255}, {185,174,255}, {215,255,255}, {215,255,255}, {0,255,238}, {0,255,239}, {0,0,255}, {144,255,196}, {0,255,239}, {0,255,239}, {43,255,234}, {0,255,255}, {215,255,255}, {43,255,234}, {0,255,239}, {0,255,239}, {43,255,234}, {83,255,139}, {144,255,196}, {144,255,196}, {0,255,239}, {0,255,239}, {0,0,255}, {24,255,253}, {144,255,196}, {83,255,139} },
 
