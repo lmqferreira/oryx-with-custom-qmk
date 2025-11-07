@@ -6,10 +6,11 @@
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
 
+#define L1_LINGER_MS 180
+
 enum custom_keycodes {
   RGB_SLD = ZSA_SAFE_RANGE,
 };
-
 
 
 
@@ -170,16 +171,38 @@ bool rgb_matrix_indicators_user(void) {
 // Latch Left Alt after first TAB on layer 1; release when layer 1 deactivates
 static bool layer1_alt_latched = false;
 
+static bool         l1_linger_active = false;
+static uint16_t     l1_linger_timer  = 0;
+static layer_state_t prev_layer_state = 0;
+
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // Use the incoming 'state' to see whether layer 1 will be active
+    // Detect Layer 1 transition using previous vs incoming state
+    bool was_on  = layer_state_cmp(prev_layer_state, 1);
+    bool will_on = layer_state_cmp(state, 1);
+
+    // If Layer 1 was on and is about to turn off, start linger by forcing it back on
+    if (was_on && !will_on) {
+        l1_linger_active = true;
+        l1_linger_timer  = timer_read();
+        state |= (1UL << 1);  // keep layer 1 on during linger
+        will_on = true;
+    } else if (will_on) {
+        // If Layer 1 is (still) on by any means, cancel linger
+        l1_linger_active = false;
+    }
+
+    // --- Your existing Alt-latch release when Layer 1 truly deactivates ---
     if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
         layer1_alt_latched = false;
         unregister_mods(MOD_BIT(KC_LALT));
-        // (optional, but helps in some setups)
         send_keyboard_report();
     }
+    // --- end Alt-latch section ---
+
+    prev_layer_state = state;
     return state;
 }
+
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -203,4 +226,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
   }
   return true;
+}
+
+
+void matrix_scan_user(void) {
+    if (l1_linger_active && timer_elapsed(l1_linger_timer) > L1_LINGER_MS) {
+        // Stop the linger before turning the layer off to avoid re-latching
+        l1_linger_active = false;
+        layer_off(1);  // this time it really turns off (and will trigger your Alt unlatch)
+    }
 }
