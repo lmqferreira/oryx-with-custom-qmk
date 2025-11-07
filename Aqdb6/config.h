@@ -24,7 +24,7 @@
 #define MOUSEKEY_WHEEL_TIME_TO_MAX 50
 
 #define CAPS_LOCK_STATUS
-#define SERIAL_NUMBER "Aqdb6/gadQVM"
+#define SERIAL_NUMBER "Aqdb6/x9mbgW"
 #define LAYER_STATE_8BIT
 #define COMBO_COUNT 9
 
