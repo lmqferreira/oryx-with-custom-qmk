@@ -1,12 +1,11 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 #include "i18n.h"
+#include "oneshot.h"   // <- for one-shot helpers (get_oneshot_layer, etc.)
 #define MOON_LED_LEVEL LED_LEVEL
 #ifndef ZSA_SAFE_RANGE
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
-
-#define L1_LINGER_MS 180
 
 enum custom_keycodes {
   RGB_SLD = ZSA_SAFE_RANGE,
@@ -168,47 +167,32 @@ bool rgb_matrix_indicators_user(void) {
   return true;
 }
 
-// Latch Left Alt after first TAB on layer 1; release when layer 1 deactivates
 static bool layer1_alt_latched = false;
-
-static bool         l1_linger_active = false;
-static bool         l1_allow_turnoff_once = false; 
-static uint16_t     l1_linger_timer  = 0;
 static layer_state_t prev_layer_state = 0;
+
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     bool was_on  = layer_state_cmp(prev_layer_state, 1);
     bool will_on = layer_state_cmp(state, 1);
 
-    // If L1 is about to turn off…
+    // If Layer 1 is transitioning OFF (e.g., you released LT(1, KC_SPACE)):
     if (was_on && !will_on) {
-        if (l1_allow_turnoff_once) {
-            // This is the *post-linger* turn-off -> allow it and clear the guard
-            l1_allow_turnoff_once = false;
-            l1_linger_active = false;  // ensure we’re not considered lingering anymore
-        } else {
-            // Normal release -> start linger by forcing layer 1 back on
-            l1_linger_active = true;
-            l1_linger_timer  = timer_read();
-            state |= (1UL << 1);   // keep layer 1 on during linger
-            will_on = true;
-        }
-    } else if (will_on) {
-        // If Layer 1 is on by any means, we’re not in "about to turn off" state
-        l1_linger_active = l1_linger_active; // no-op; keeps current flag
+        // Start a one-shot Layer 1 to provide a short linger that
+        // cancels on next keypress or times out via ONESHOT_TIMEOUT.
+        set_oneshot_layer(1, ONESHOT_START);
     }
 
-    // Your existing Alt-latch release when L1 truly deactivates:
-    if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
+    // Only release the Alt latch when Layer 1 is OFF *and*
+    // there is no active one-shot layer.
+    if (!layer_state_cmp(state, 1) && (get_oneshot_layer() == 0) && layer1_alt_latched) {
         layer1_alt_latched = false;
         unregister_mods(MOD_BIT(KC_LALT));
         send_keyboard_report();
     }
 
-    prev_layer_state = state;   // track the state we actually return
+    prev_layer_state = state;
     return state;
 }
-
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
@@ -233,13 +217,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-
-void matrix_scan_user(void) {
-    if (l1_linger_active && timer_elapsed(l1_linger_timer) > L1_LINGER_MS) {
-        // Linger expired: allow the *next* off to be real (no re-linger)
-        l1_allow_turnoff_once = true;
-        layer_off(1);  // triggers layer_state_set_user(), which will see the guard and allow off
-        // Do NOT clear l1_allow_turnoff_once here; it’s cleared inside layer_state_set_user()
-    }
-}
 
