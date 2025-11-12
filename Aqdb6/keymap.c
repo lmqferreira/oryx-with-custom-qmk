@@ -219,7 +219,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // If we're lingering, and the activator isn't held, pressing any other key schedules Layer 1 cancellation
     // We defer the actual layer_off() to avoid disrupting OSM and other QMK features
-    if (record->event.pressed && l1_linger_active && !l1_activator_down && keycode != LT(1, KC_SPACE)) {
+    // CRITICAL: Only cancel if we're actually on layer 1 AND the key is not transparent/passthrough
+    if (record->event.pressed && l1_linger_active && !l1_activator_down && 
+        keycode != LT(1, KC_SPACE) && layer_state_is(1) && keycode != KC_TRANSPARENT) {
         l1_cancel_pending = true;
     }
 
@@ -245,10 +247,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     // After the key has been fully processed by QMK (including OSM), now we can safely cancel layer 1
     if (l1_cancel_pending) {
-        l1_allow_turnoff_once = true;  // guard so layer_state_set_user won't re-linger
-        l1_linger_active      = false;
-        l1_cancel_pending     = false;
-        layer_off(1);
+        if (record->event.pressed) {
+            // Key press: now safe to cancel layer after OSM/QMK processing
+            l1_allow_turnoff_once = true;  // guard so layer_state_set_user won't re-linger
+            l1_linger_active      = false;
+            layer_off(1);
+        }
+        // Clear the flag on both press and release to ensure clean state
+        l1_cancel_pending = false;
     }
 }
 
