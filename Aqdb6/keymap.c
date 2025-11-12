@@ -168,64 +168,24 @@ bool rgb_matrix_indicators_user(void) {
 
 
 
-// --- Layer 1 linger & "next key cancels if activator not held" ---
-static bool          layer1_alt_latched     = false; // your existing latch
-static bool          l1_linger_active       = false;
-static bool          l1_allow_turnoff_once  = false;
-static bool          l1_activator_down      = false; // true while any LT(1, KC_SPACE) is held
-static bool          l1_cancel_pending      = false; // defer layer cancel to avoid OSM disruption
-static uint16_t      l1_linger_timer        = 0;
-static layer_state_t prev_layer_state       = 0;
+// Latch Left Alt after first TAB on layer 1; release when layer 1 deactivates
+static bool layer1_alt_latched = false;
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    bool was_on  = layer_state_cmp(prev_layer_state, 1);
-    bool will_on = layer_state_cmp(state, 1);
-
-    // If L1 is about to turn off...
-    if (was_on && !will_on) {
-        if (l1_allow_turnoff_once) {
-            // Allow a real turn-off once (used by timer or next-key cancel)
-            l1_allow_turnoff_once = false;
-            l1_linger_active = false;
-        } else {
-            // Start linger: force layer back on
-            l1_linger_active = true;
-            l1_linger_timer  = timer_read();
-            state |= (1UL << 1);
-            will_on = true;
-        }
-    }
-
-    // Release your LALT latch when L1 truly deactivates
+    // Use the incoming 'state' to see whether layer 1 will be active
     if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
         layer1_alt_latched = false;
         unregister_mods(MOD_BIT(KC_LALT));
+        // (optional, but helps in some setups)
         send_keyboard_report();
     }
-
-    prev_layer_state = state;
     return state;
 }
 
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // Track the LT(1, KC_SPACE) activator (both thumbs share this keycode)
-    if (keycode == LT(1, KC_SPACE)) {
-        if (record->event.pressed) {
-            l1_activator_down = true;
-        } else { // released
-            l1_activator_down = false;
-        }
-    }
 
-    // If we're lingering, and the activator isn't held, pressing any other key schedules Layer 1 cancellation
-    // We defer the actual layer_off() to avoid disrupting OSM and other QMK features
-    // CRITICAL: Only cancel if we're actually on layer 1 AND the key is not transparent/passthrough
-    if (record->event.pressed && l1_linger_active && !l1_activator_down && 
-        keycode != LT(1, KC_SPACE) && layer_state_is(1) && keycode != KC_TRANSPARENT) {
-        l1_cancel_pending = true;
-    }
-
-    // Alt latch on first TAB while on layer 1
+// Alt latch on first TAB while on layer 1
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
@@ -233,36 +193,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return true; // let TAB through
     }
+  // --- End: Alt latch on first TAB while on layer 1 ---
+  
+  switch (keycode) {
 
-    switch (keycode) {
-        case RGB_SLD:
-            if (record->event.pressed) {
-                rgblight_mode(1);
-            }
-            return false;
-    }
-    return true;
-}
-
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // After the key has been fully processed by QMK (including OSM), now we can safely cancel layer 1
-    if (l1_cancel_pending) {
-        if (record->event.pressed) {
-            // Key press: now safe to cancel layer after OSM/QMK processing
-            l1_allow_turnoff_once = true;  // guard so layer_state_set_user won't re-linger
-            l1_linger_active      = false;
-            layer_off(1);
-        }
-        // Clear the flag on both press and release to ensure clean state
-        l1_cancel_pending = false;
-    }
-}
-
-void matrix_scan_user(void) {
-    if (l1_linger_active && !l1_activator_down && timer_elapsed(l1_linger_timer) > L1_LINGER_MS) {
-        // Linger expired -> allow a real turn-off, then turn off
-        l1_allow_turnoff_once = true;
-        l1_linger_active      = false;
-        layer_off(1);
-    }
+    case RGB_SLD:
+      if (record->event.pressed) {
+        rgblight_mode(1);
+      }
+      return false;
+  }
+  return true;
 }
