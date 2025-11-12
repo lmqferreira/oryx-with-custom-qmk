@@ -173,6 +173,7 @@ static bool          layer1_alt_latched     = false; // your existing latch
 static bool          l1_linger_active       = false;
 static bool          l1_allow_turnoff_once  = false;
 static bool          l1_activator_down      = false; // true while any LT(1, KC_SPACE) is held
+static bool          l1_cancel_pending      = false; // defer layer cancel to avoid OSM disruption
 static uint16_t      l1_linger_timer        = 0;
 static layer_state_t prev_layer_state       = 0;
 
@@ -216,11 +217,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
-    // If we're lingering, and the activator isn't held, pressing any other key cancels Layer 1 immediately
+    // If we're lingering, and the activator isn't held, pressing any other key schedules Layer 1 cancellation
+    // We defer the actual layer_off() to avoid disrupting OSM and other QMK features
     if (record->event.pressed && l1_linger_active && !l1_activator_down && keycode != LT(1, KC_SPACE)) {
-        l1_allow_turnoff_once = true;  // guard so layer_state_set_user won't re-linger
-        l1_linger_active      = false;
-        layer_off(1);
+        l1_cancel_pending = true;
     }
 
     // Alt latch on first TAB while on layer 1
@@ -240,6 +240,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
     return true;
+}
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // After the key has been fully processed by QMK (including OSM), now we can safely cancel layer 1
+    if (l1_cancel_pending) {
+        l1_allow_turnoff_once = true;  // guard so layer_state_set_user won't re-linger
+        l1_linger_active      = false;
+        l1_cancel_pending     = false;
+        layer_off(1);
+    }
 }
 
 void matrix_scan_user(void) {
