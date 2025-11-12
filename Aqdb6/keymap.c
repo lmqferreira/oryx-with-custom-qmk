@@ -10,7 +10,18 @@ enum custom_keycodes {
   RGB_SLD = ZSA_SAFE_RANGE,
 };
 
-#define L1_LINGER_MS 180
+#define L1_LINGER_MS 250
+
+// Layer linger state tracking
+typedef enum {
+    LINGER_INACTIVE,    // No linger active
+    LINGER_PENDING,     // Linger period active, waiting for key or timeout
+    LINGER_CONSUMED     // Key pressed during linger, waiting for release
+} linger_state_t;
+
+static linger_state_t layer1_linger_state = LINGER_INACTIVE;
+static uint32_t layer1_linger_timer = 0;
+static bool layer1_lt_held = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -94,6 +105,17 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+void matrix_scan_user(void) {
+    // Check if linger timeout has expired
+    if (layer1_linger_state == LINGER_PENDING) {
+        if (timer_elapsed32(layer1_linger_timer) >= L1_LINGER_MS) {
+            // Timeout expired - deactivate layer 1
+            layer_off(1);
+            layer1_linger_state = LINGER_INACTIVE;
+            layer1_linger_timer = 0;
+        }
+    }
+}
 
 extern rgb_config_t rgb_matrix_config;
 
@@ -172,20 +194,68 @@ bool rgb_matrix_indicators_user(void) {
 static bool layer1_alt_latched = false;
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // Use the incoming 'state' to see whether layer 1 will be active
-    if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
-        layer1_alt_latched = false;
-        unregister_mods(MOD_BIT(KC_LALT));
-        // (optional, but helps in some setups)
-        send_keyboard_report();
+    // Check if layer 1 is being deactivated
+    if (!layer_state_cmp(state, 1)) {
+        // Reset linger state when layer 1 is turned off
+        layer1_linger_state = LINGER_INACTIVE;
+        layer1_linger_timer = 0;
+        
+        // Handle Alt latch
+        if (layer1_alt_latched) {
+            layer1_alt_latched = false;
+            unregister_mods(MOD_BIT(KC_LALT));
+            send_keyboard_report();
+        }
     }
     return state;
 }
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Track LT(1, KC_SPACE) hold state
+    if (keycode == LT(1, KC_SPACE)) {
+        if (record->event.pressed) {
+            layer1_lt_held = true;
+            // Cancel any active linger when the LT key is pressed
+            if (layer1_linger_state != LINGER_INACTIVE) {
+                layer1_linger_state = LINGER_INACTIVE;
+                layer1_linger_timer = 0;
+            }
+        } else {
+            layer1_lt_held = false;
+            // Start linger timer when LT key is released while layer 1 is still active
+            // This catches the "tap" case where layer 1 is about to deactivate
+            if (layer_state_is(1) && layer1_linger_state == LINGER_INACTIVE) {
+                layer1_linger_state = LINGER_PENDING;
+                layer1_linger_timer = timer_read32();
+                layer_on(1); // Ensure layer stays active
+            }
+        }
+        return true;
+    }
 
-// Alt latch on first TAB while on layer 1
+    // Handle keys pressed during linger period
+    if (layer1_linger_state == LINGER_PENDING && !layer1_lt_held) {
+        // Check if this is a non-transparent key on layer 1
+        if (record->event.pressed && keycode != KC_TRANSPARENT) {
+            // For keys that actually exist on layer 1 (not KC_TRANSPARENT),
+            // mark that we need to deactivate layer after this key is processed
+            uint8_t layer = 1;
+            uint16_t layer1_keycode = keymap_key_to_keycode(layer, record->event.key);
+            
+            // Only trigger cancellation if the key is not transparent on layer 1
+            if (layer1_keycode != KC_TRANSPARENT && layer1_keycode != KC_NO) {
+                layer1_linger_state = LINGER_CONSUMED;
+            }
+        } else if (!record->event.pressed && layer1_linger_state == LINGER_CONSUMED) {
+            // Key released after being consumed - now deactivate layer 1
+            layer_off(1);
+            layer1_linger_state = LINGER_INACTIVE;
+            layer1_linger_timer = 0;
+        }
+    }
+
+    // Alt latch on first TAB while on layer 1
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
@@ -193,15 +263,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return true; // let TAB through
     }
-  // --- End: Alt latch on first TAB while on layer 1 ---
+    // --- End: Alt latch on first TAB while on layer 1 ---
   
-  switch (keycode) {
-
-    case RGB_SLD:
-      if (record->event.pressed) {
-        rgblight_mode(1);
-      }
-      return false;
-  }
-  return true;
+    switch (keycode) {
+        case RGB_SLD:
+            if (record->event.pressed) {
+                rgblight_mode(1);
+            }
+            return false;
+    }
+    return true;
 }
