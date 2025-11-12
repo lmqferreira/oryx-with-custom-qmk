@@ -174,8 +174,10 @@ static bool layer1_alt_latched = false;
 #define L1_LINGER_MS 250
 #endif
 
+// Replace old linger vars
 static bool l1_linger = false;
 static uint16_t l1_linger_timer = 0;
+static bool l1_linger_cancel_pending = false;
 
 
 
@@ -187,6 +189,8 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     }
     return state;
 }
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // Alt latch logic (unchanged)
@@ -208,47 +212,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// Post-process: start linger ONLY after a HOLD release of LT(1, KC_SPACE)
+
+// Post-process: linger only after HOLD release of LT(1, KC_SPACE)
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (keycode == LT(1, KC_SPACE)) {
-        if (record->event.pressed) {
-            // Pressing LT again cancels existing linger
-            if (l1_linger) {
-                l1_linger = false;
-                // We leave layer handling to LT's normal behavior
-            }
-        } else {
-            // Release: determine tap vs hold
+        if (!record->event.pressed) {
+            // Release: decide tap vs hold
             bool was_tap = (record->tap.count && !record->tap.interrupted);
             if (was_tap) {
-                // Simple tap: Space already sent by LT internally, no linger
+                // Tap: just space, no linger
                 l1_linger = false;
+                l1_linger_cancel_pending = false;
             } else {
-                // HOLD release: QMK just turned layer 1 off; re-enable & start linger
+                // Hold release: start linger (re-enable layer 1)
                 layer_on(1);
                 l1_linger = true;
+                l1_linger_cancel_pending = false;
                 l1_linger_timer = timer_read();
+            }
+        } else {
+            // Press of LT again while lingering cancels immediately
+            if (l1_linger) {
+                l1_linger = false;
+                l1_linger_cancel_pending = true; // schedule layer_off
             }
         }
         return;
     }
 
-    // Any other key press during linger ends it AFTER this key runs
+    // Any other key press during linger schedules cancellation AFTER processing
     if (l1_linger && record->event.pressed) {
         l1_linger = false;
-        if (layer_state_is(1)) {
-            layer_off(1);
-        }
+        l1_linger_cancel_pending = true;
     }
 }
 
-// Timer expiration
+// Matrix scan: handle timeout or scheduled cancellation
 void matrix_scan_user(void) {
     if (l1_linger && timer_elapsed(l1_linger_timer) > L1_LINGER_MS) {
         l1_linger = false;
-        if (layer_state_is(1)) {
-            layer_off(1);
-        }
+        l1_linger_cancel_pending = true;
+    }
+
+    if (l1_linger_cancel_pending) {
+        l1_linger_cancel_pending = false;
+        layer_off(1); // unconditional, ensures bit clears
     }
 }
