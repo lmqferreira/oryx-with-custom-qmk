@@ -12,55 +12,6 @@ enum custom_keycodes {
 
 #define L1_LINGER_MS 180
 
-// Layer 1 linger state when LT(1, KC_SPACE) is tapped (behaves like one-shot)
-static bool     l1_linger_active      = false;
-static bool     l1_linger_layer_on    = false;
-static uint16_t l1_linger_timer       = 0;
-static uint8_t  l1_lt_press_count     = 0;
-
-static void l1_start_linger(void) {
-  l1_linger_active = true;
-  l1_linger_timer = timer_read();
-  l1_linger_layer_on = false;
-  if (!layer_state_is(1)) {
-    layer_on(1);
-    l1_linger_layer_on = true;
-  }
-}
-
-static void l1_end_linger(void) {
-  if (!l1_linger_active) {
-    return;
-  }
-  l1_linger_active = false;
-  if (l1_linger_layer_on && !l1_lt_press_count && layer_state_is(1)) {
-    layer_off(1);
-  }
-  l1_linger_layer_on = false;
-}
-
-static void handle_l1_linger(uint16_t keycode, keyrecord_t *record) {
-  if (keycode != LT(1, KC_SPACE)) {
-    return;
-  }
-
-  if (record->event.pressed) {
-    l1_lt_press_count++;
-    l1_linger_active = false;
-    l1_linger_layer_on = false;
-  } else {
-    if (l1_lt_press_count > 0) {
-      l1_lt_press_count--;
-    }
-    if (record->tap.count > 0 && !record->tap.interrupted && l1_lt_press_count == 0) {
-      l1_start_linger();
-    } else if (l1_lt_press_count == 0) {
-      l1_linger_active = false;
-      l1_linger_layer_on = false;
-    }
-  }
-}
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
     KC_ESCAPE,      KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_BSPC,        
@@ -233,7 +184,6 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  handle_l1_linger(keycode, record);
 
 // Alt latch on first TAB while on layer 1
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
@@ -254,30 +204,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
   }
   return true;
-}
-
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-  (void)keycode;
-  if (!l1_linger_active) {
-    return;
-  }
-  if (record->event.pressed) {
-    if (l1_lt_press_count > 0) {
-      return;
-    }
-    if (record->event.key.row >= MATRIX_ROWS || record->event.key.col >= MATRIX_COLS) {
-      l1_end_linger();
-      return;
-    }
-    uint16_t layer1_keycode = keymap_key_to_keycode(1, record->event.key);
-    if (layer1_keycode != KC_TRANSPARENT) {
-      l1_end_linger();
-    }
-  }
-}
-
-void matrix_scan_user(void) {
-  if (l1_linger_active && l1_lt_press_count == 0 && timer_elapsed(l1_linger_timer) >= L1_LINGER_MS) {
-    l1_end_linger();
-  }
 }
