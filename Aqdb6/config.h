@@ -29,12 +29,13 @@
 #define COMBO_COUNT 9
 
 #define TAPPING_TERM_PER_KEY
-
-// Layer 1 linger configuration
-#define L1_LINGER_MS 250
 #define RGB_MATRIX_STARTUP_SPD 60
 
 #undef ENABLE_RGB_MATRIX_HUE_WAVE
 #undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_CROSS
 #undef ENABLE_RGB_MATRIX_SOLID_REACTIVE_NEXUS
+
+// Add linger duration (Layer 1 only)
+#define L1_LINGER_MS 250
+
 

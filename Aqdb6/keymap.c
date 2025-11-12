@@ -170,94 +170,100 @@ bool rgb_matrix_indicators_user(void) {
 // Latch Left Alt after first TAB on layer 1; release when layer 1 deactivates
 static bool layer1_alt_latched = false;
 
-// Layer 1 linger state tracking
+// --- Layer 1 Linger State ---
 static bool layer1_linger_active = false;
 static uint16_t layer1_linger_timer = 0;
-static bool layer1_held = false;
+static bool layer1_lt_held = false; // true while LT(1, KC_SPACE) physically held
+
+// Helper: identify our LT key (compile-time constant)
+#define L1_LT_KEY LT(1, KC_SPACE)
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    bool was_layer1_active = layer_state_is(1);
-    bool will_be_layer1_active = layer_state_cmp(state, 1);
-    
-    // Layer 1 is being deactivated (LT key released)
-    if (was_layer1_active && !will_be_layer1_active && !layer1_linger_active) {
-        // Start linger period
-        layer1_linger_active = true;
-        layer1_linger_timer = timer_read();
-        layer1_held = false;
-        // Keep layer 1 active
-        state |= (1UL << 1);
-    }
-    
-    // Use the incoming 'state' to see whether layer 1 will be active
+    // Existing Alt latch release logic
     if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
         layer1_alt_latched = false;
         unregister_mods(MOD_BIT(KC_LALT));
-        // (optional, but helps in some setups)
         send_keyboard_report();
+    }
+    // If some external action turned layer 1 off while lingering, cancel linger.
+    if (!layer_state_cmp(state, 1) && layer1_linger_active) {
+        layer1_linger_active = false;
     }
     return state;
 }
 
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    
-    // Track if LT(1, KC_SPACE) is being held
-    if (keycode == LT(1, KC_SPACE)) {
+
+    // --- Layer 1 linger logic before other custom handling ---
+    // Track presses/releases of LT(1, KC_SPACE)
+    if (keycode == L1_LT_KEY) {
         if (record->event.pressed) {
-            layer1_held = true;
-            // Cancel linger if LT key is pressed again
+            // Starting a new hold; cancel any lingering state.
+            layer1_lt_held = true;
             if (layer1_linger_active) {
                 layer1_linger_active = false;
             }
         } else {
-            layer1_held = false;
+            // Released: decide tap vs hold
+            if (layer1_lt_held) {
+                bool was_tap = (record->tap.count && !record->tap.interrupted);
+                layer1_lt_held = false;
+                if (was_tap) {
+                    // Space was sent; start lingering Layer 1
+                    layer_on(1);
+                    layer1_linger_active = true;
+                    layer1_linger_timer = timer_read();
+                } else {
+                    // Normal hold release; ensure layer is off (unless something else keeps it on)
+                    if (layer_state_is(1)) {
+                        layer_off(1);
+                    }
+                }
+            }
         }
-    }
-    
-    // If linger is active and a key is pressed (excluding LT key itself)
-    if (layer1_linger_active && record->event.pressed && keycode != LT(1, KC_SPACE)) {
-        // Check if this is an OSM keycode - if so, don't cancel linger yet
-        // OSM keycodes are handled by QMK and we shouldn't interfere
-        uint16_t base_keycode = keycode;
-        if ((base_keycode & 0xFF00) == 0x5100) { // OSM keycode range
-            // This is an OSM, let it through without canceling linger
-            return true;
+        // Allow normal LT behavior otherwise
+    } else if (layer1_linger_active) {
+        // Any other key press during linger ends it AFTER processing this key.
+        if (record->event.pressed) {
+            // Let the key go through (including OSM keys) then disable Layer 1.
+            // We don't special-case OSM because requirement is "must not interfere";
+            // turning the layer off after processing doesn't affect one-shot mod registration.
+            layer1_linger_active = false;
+            // Turn layer 1 off only if LT key not re-engaged.
+            if (!layer1_lt_held && layer_state_is(1)) {
+                layer_off(1);
+            }
         }
-        
-        // For any other key, cancel linger after this key is processed
-        // We'll deactivate layer 1 on the next matrix scan
-        layer1_linger_active = false;
-        layer_state_off(1);
     }
 
-// Alt latch on first TAB while on layer 1
+    // --- Existing Alt latch feature ---
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
             register_mods(MOD_BIT(KC_LALT));
         }
-        return true; // let TAB through
+        return true;
     }
-  // --- End: Alt latch on first TAB while on layer 1 ---
-  
-  switch (keycode) {
 
-    case RGB_SLD:
-      if (record->event.pressed) {
-        rgblight_mode(1);
-      }
-      return false;
-  }
-  return true;
+    switch (keycode) {
+        case RGB_SLD:
+            if (record->event.pressed) {
+                rgblight_mode(1);
+            }
+            return false;
+    }
+    return true;
 }
 
+// Matrix scan: expire linger timeout
 void matrix_scan_user(void) {
-    // Handle layer 1 linger timeout
-    if (layer1_linger_active && !layer1_held) {
-        if (timer_elapsed(layer1_linger_timer) > L1_LINGER_MS) {
+    if (layer1_linger_active) {
+        if (!layer1_lt_held && timer_elapsed(layer1_linger_timer) > L1_LINGER_MS) {
+            // Timeout: no key pressed within linger window
             layer1_linger_active = false;
-            layer_off(1);
+            if (layer_state_is(1)) {
+                layer_off(1);
+            }
         }
     }
 }
