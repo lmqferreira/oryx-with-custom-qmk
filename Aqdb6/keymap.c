@@ -176,7 +176,7 @@ static bool layer1_alt_latched = false;
 
 static bool l1_linger = false;
 static uint16_t l1_linger_timer = 0;
-static bool l1_lt_held = false; // tracks current physical hold of LT(1, KC_SPACE)
+
 
 
 layer_state_t layer_state_set_user(layer_state_t state) {
@@ -187,44 +187,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     }
     return state;
 }
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-    // L1 linger handling for LT(1, KC_SPACE)
-    if (keycode == LT(1, KC_SPACE)) {
-        if (record->event.pressed) {
-            l1_lt_held = true;
-            // If we re-press during lingering, just cancel linger and continue normal hold behavior
-            if (l1_linger) {
-                l1_linger = false;
-            }
-        } else { // release
-            if (l1_lt_held) {
-                bool tapped = (record->tap.count > 0); // simple tap test
-                l1_lt_held = false;
-                if (tapped) {
-                    // Start lingering: activate layer 1 explicitly
-                    layer_on(1);
-                    l1_linger = true;
-                    l1_linger_timer = timer_read();
-                } else {
-                    // Was a hold: let QMK have activated layer 1; now turn it off
-                    if (layer_state_is(1)) {
-                        layer_off(1);
-                    }
-                }
-            }
-        }
-        // Let LT do its normal output (Space on tap)
-    } else if (l1_linger && record->event.pressed) {
-        // Any key press during linger ends layer 1 AFTER letting this key through
-        l1_linger = false;
-        if (!l1_lt_held && layer_state_is(1)) {
-            layer_off(1);
-        }
-    }
-
-    // Existing Alt latch feature (unchanged)
+    // Alt latch logic (unchanged)
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
@@ -243,9 +208,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// Matrix scan timeout (keep simple)
+// Post-process: start linger ONLY after a HOLD release of LT(1, KC_SPACE)
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+    if (keycode == LT(1, KC_SPACE)) {
+        if (record->event.pressed) {
+            // Pressing LT again cancels existing linger
+            if (l1_linger) {
+                l1_linger = false;
+                // We leave layer handling to LT's normal behavior
+            }
+        } else {
+            // Release: determine tap vs hold
+            bool was_tap = (record->tap.count && !record->tap.interrupted);
+            if (was_tap) {
+                // Simple tap: Space already sent by LT internally, no linger
+                l1_linger = false;
+            } else {
+                // HOLD release: QMK just turned layer 1 off; re-enable & start linger
+                layer_on(1);
+                l1_linger = true;
+                l1_linger_timer = timer_read();
+            }
+        }
+        return;
+    }
+
+    // Any other key press during linger ends it AFTER this key runs
+    if (l1_linger && record->event.pressed) {
+        l1_linger = false;
+        if (layer_state_is(1)) {
+            layer_off(1);
+        }
+    }
+}
+
+// Timer expiration
 void matrix_scan_user(void) {
-    if (l1_linger && !l1_lt_held && timer_elapsed(l1_linger_timer) > L1_LINGER_MS) {
+    if (l1_linger && timer_elapsed(l1_linger_timer) > L1_LINGER_MS) {
         l1_linger = false;
         if (layer_state_is(1)) {
             layer_off(1);
