@@ -171,21 +171,57 @@ bool rgb_matrix_indicators_user(void) {
 // Latch Left Alt after first TAB on layer 1; release when layer 1 deactivates
 static bool layer1_alt_latched = false;
 
+// Layer 1 linger state tracking
+static bool     l1_linger_active = false;      // Is linger period currently active?
+static uint32_t l1_linger_timer = 0;           // When did the linger period start?
+static bool     l1_cancel_pending = false;     // Should we cancel layer after current key finishes processing?
+static bool     l1_lt_key_held = false;        // Is the LT(1, KC_SPACE) key currently held down?
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     // Use the incoming 'state' to see whether layer 1 will be active
-    if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
-        layer1_alt_latched = false;
-        unregister_mods(MOD_BIT(KC_LALT));
-        // (optional, but helps in some setups)
-        send_keyboard_report();
+    if (!layer_state_cmp(state, 1)) {
+        // Layer 1 is being deactivated
+        if (layer1_alt_latched) {
+            layer1_alt_latched = false;
+            unregister_mods(MOD_BIT(KC_LALT));
+            send_keyboard_report();
+        }
+        
+        // If Layer 1 is turning off and the LT key is not held, start linger
+        if (!l1_lt_key_held && !l1_linger_active) {
+            l1_linger_active = true;
+            l1_linger_timer = timer_read32();
+            // Re-activate Layer 1 for the linger period
+            state |= (1UL << 1);
+        }
+    } else {
+        // Layer 1 is active - cancel any linger state
+        l1_linger_active = false;
+        l1_cancel_pending = false;
     }
+    
     return state;
 }
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-// Alt latch on first TAB while on layer 1
+    // Track LT(1, KC_SPACE) key state
+    // The LT key is on row 3, col 3 and row 3, col 4 (both thumb keys)
+    if (keycode == LT(1, KC_SPACE)) {
+        if (record->event.pressed) {
+            l1_lt_key_held = true;
+            // Cancel linger if we're pressing the LT key again
+            if (l1_linger_active) {
+                l1_linger_active = false;
+                l1_cancel_pending = false;
+            }
+        } else {
+            l1_lt_key_held = false;
+        }
+    }
+
+    // Alt latch on first TAB while on layer 1
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
@@ -193,15 +229,42 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return true; // let TAB through
     }
-  // --- End: Alt latch on first TAB while on layer 1 ---
+    // --- End: Alt latch on first TAB while on layer 1 ---
   
-  switch (keycode) {
+    // Layer linger: detect keypresses during linger period
+    if (l1_linger_active && record->event.pressed && !l1_lt_key_held) {
+        // Ignore KC_TRANSPARENT keys - they shouldn't cancel linger
+        if (keycode != KC_TRANSPARENT && keycode != KC_TRNS) {
+            // Schedule layer cancellation AFTER this key finishes processing
+            l1_cancel_pending = true;
+        }
+    }
+  
+    switch (keycode) {
+        case RGB_SLD:
+            if (record->event.pressed) {
+                rgblight_mode(1);
+            }
+            return false;
+    }
+    return true;
+}
 
-    case RGB_SLD:
-      if (record->event.pressed) {
-        rgblight_mode(1);
-      }
-      return false;
-  }
-  return true;
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Cancel layer AFTER key processing completes (preserves OSM functionality)
+    if (l1_cancel_pending && record->event.pressed) {
+        l1_cancel_pending = false;
+        l1_linger_active = false;
+        layer_off(1);
+    }
+}
+
+void matrix_scan_user(void) {
+    // Check if linger period has expired
+    if (l1_linger_active && !l1_lt_key_held) {
+        if (timer_elapsed32(l1_linger_timer) > L1_LINGER_MS) {
+            l1_linger_active = false;
+            layer_off(1);
+        }
+    }
 }
