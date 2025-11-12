@@ -29,6 +29,9 @@
 #define COMBO_COUNT 9
 
 #define TAPPING_TERM_PER_KEY
+
+// Layer 1 linger configuration
+#define L1_LINGER_MS 250
 #define RGB_MATRIX_STARTUP_SPD 60
 
 #undef ENABLE_RGB_MATRIX_HUE_WAVE
