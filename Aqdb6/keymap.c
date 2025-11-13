@@ -171,16 +171,16 @@ bool rgb_matrix_indicators_user(void) {
 static bool layer1_alt_latched = false;
 
 
-// Add near top if not present:
 #ifndef L1_LINGER_MS
 #define L1_LINGER_MS 250
 #endif
 
-// State for linger
-static bool lt1_held = false;          // Currently holding LT(1, KC_SPACE)
-static bool l1_used_during_hold = false; // Any key pressed while LT was held
-static bool l1_linger = false;         // Linger active
-static uint16_t l1_linger_timer = 0;   // Start time of linger
+// Linger state
+static bool lt1_held = false;              // LT(1, KC_SPACE) currently held
+static bool l1_used_during_hold = false;   // Any key pressed while LT was held
+static bool l1_linger = false;             // Linger active
+static bool l1_linger_end_pending = false; // End linger after current key processing
+static uint16_t l1_linger_timer = 0;       // Linger start timestamp
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     if (!layer_state_cmp(state, 1) && layer1_alt_latched) {
@@ -193,50 +193,29 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-    // Track LT key lifecycle
+    // Track LT hold lifecycle (only press sets flags; release handled post-process)
     if (keycode == LT(1, KC_SPACE)) {
         if (record->event.pressed) {
-            // Start potential hold; reset flags
             lt1_held = true;
             l1_used_during_hold = false;
-            // Cancel any linger in progress
+            // Cancel any existing linger when re-pressing LT
             if (l1_linger) {
                 l1_linger = false;
+                l1_linger_end_pending = false;
             }
-        } else {
-            // Release: determine tap vs hold
-            bool was_tap = (record->tap.count && !record->tap.interrupted);
-            if (was_tap) {
-                // Just a space tap; no linger
-                l1_linger = false;
-            } else {
-                // Was a hold
-                if (!l1_used_during_hold) {
-                    // User didn't press anything else while layer 1 was active -> start linger
-                    layer_on(1);            // Re-enable (QMK likely turned it off)
-                    l1_linger = true;
-                    l1_linger_timer = timer_read();
-                } else {
-                    // Used during hold -> no linger
-                    l1_linger = false;
-                }
-            }
-            lt1_held = false;
         }
-        // Let LT do its normal behavior
     } else if (record->event.pressed) {
-        // Any key pressed while LT held counts as usage
+        // Any key press while LT is held marks usage (disqualifies linger)
         if (lt1_held) {
             l1_used_during_hold = true;
         }
-        // During linger: first key consumes it (Layer 1 applies to this key, then off)
+        // During linger: first key press consumes it (end after key processed)
         if (l1_linger) {
-            l1_linger = false;
-            layer_off(1);
+            l1_linger_end_pending = true;
         }
     }
 
-    // Alt latch logic (unchanged)
+    // Alt latch logic unchanged
     if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
@@ -253,6 +232,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
     return true;
+}
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Handle LT release AFTER QMK core decided tap vs hold and toggled layer
+    if (keycode == LT(1, KC_SPACE) && !record->event.pressed) {
+        bool was_tap = (record->tap.count && !record->tap.interrupted);
+        if (!was_tap) { // was a hold
+            if (!l1_used_during_hold) {
+                // Eligible for linger: re-enable layer 1 now (it was just turned off)
+                layer_on(1);
+                l1_linger = true;
+                l1_linger_timer = timer_read();
+            }
+        }
+        lt1_held = false;
+    }
+
+    // End linger after processing the first non-LT key in linger window
+    if (l1_linger_end_pending) {
+        l1_linger_end_pending = false;
+        if (l1_linger) {
+            l1_linger = false;
+            layer_off(1);
+        }
+    }
 }
 
 void matrix_scan_user(void) {
