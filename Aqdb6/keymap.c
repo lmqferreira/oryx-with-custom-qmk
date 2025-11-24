@@ -26,7 +26,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,         PT_EXLM,        PT_AT,          PT_EURO,        PT_BSLS,        PT_PERC,                                        PT_AMPR,        PT_SLSH,        PT_LPRN,        PT_RPRN,        PT_ACUT,        KC_DELETE,      
     KC_TRANSPARENT, PT_CIRC,        PT_DQUO,        PT_DLR,         PT_GRV,         PT_PIPE,                                        PT_QUES,        PT_QUOT,        PT_LCBR,        PT_RCBR,        PT_TILD,        KC_ENTER,       
     KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        PT_ASTR,        PT_LDAQ,                                        PT_EQL,         PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_MORD,        KC_PSCR,        
-                                                    OSM(MOD_RSFT),  KC_TRANSPARENT,                                 KC_TRANSPARENT, OSM(MOD_RSFT)
+                                                    OSM(MOD_LSFT),  KC_TRANSPARENT,                                 KC_TRANSPARENT, OSM(MOD_RSFT)
   ),
   [2] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_PAGE_UP,     KC_PGDN,        KC_HOME,        KC_END,         KC_INSERT,      KC_BSPC,        
@@ -61,6 +61,8 @@ const uint16_t PROGMEM combo5[] = { KC_C, KC_V, COMBO_END};
 const uint16_t PROGMEM combo6[] = { KC_M, PT_COMM, COMBO_END};
 const uint16_t PROGMEM combo7[] = { KC_S, KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM combo8[] = { KC_W, KC_R, KC_E, COMBO_END};
+const uint16_t PROGMEM combo9[] = { PT_DLR, PT_GRV, COMBO_END};
+const uint16_t PROGMEM combo10[] = { PT_QUOT, PT_LCBR, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo0, KC_TAB),
@@ -72,6 +74,8 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo6, KC_RIGHT_GUI),
     COMBO(combo7, KC_CAPS),
     COMBO(combo8, KC_SPACE),
+    COMBO(combo9, OSM(MOD_LSFT)),
+    COMBO(combo10, OSM(MOD_RSFT)),
 };
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
