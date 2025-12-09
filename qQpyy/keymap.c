@@ -26,7 +26,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB,         PT_EXLM,        PT_AT,          PT_EURO,        PT_BSLS,        PT_PERC,                                        PT_AMPR,        PT_SLSH,        PT_LPRN,        PT_RPRN,        PT_ACUT,        KC_DELETE,      
     KC_TRANSPARENT, PT_CIRC,        PT_DQUO,        PT_DLR,         PT_GRV,         PT_PIPE,                                        PT_QUES,        PT_QUOT,        PT_LCBR,        PT_RCBR,        PT_TILD,        KC_ENTER,       
     KC_TRANSPARENT, PT_LABK,        PT_RABK,        PT_HASH,        PT_ASTR,        PT_LDAQ,                                        PT_EQL,         PT_PLUS,        PT_LBRC,        PT_RBRC,        PT_MORD,        KC_PSCR,        
-                                                    KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+                                                    KC_NO,          KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_NO
   ),
   [2] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_NO,          KC_NO,          KC_NO,          KC_NO,          KC_NO,                                          KC_PAGE_UP,     KC_PGDN,        KC_HOME,        KC_END,         KC_INSERT,      KC_BSPC,        
