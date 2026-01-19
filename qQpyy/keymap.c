@@ -223,7 +223,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     // Alt latch logic unchanged
-    if (layer_state_is(1) && keycode == KC_TAB && record->event.pressed) {
+    if (layer_state_is(1) && (keycode == KC_TAB || keycode == KC_ESCAPE) && record->event.pressed) {
         if (!layer1_alt_latched) {
             layer1_alt_latched = true;
             register_mods(MOD_BIT(KC_LALT));
